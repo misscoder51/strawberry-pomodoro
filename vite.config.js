@@ -3,12 +3,12 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: './',
+  base: '/strawberry-pomodoro/',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['starwberry fevicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['strawberry-favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Pomodoro Timer',
         short_name: 'Pomodoro',

@@ -184,18 +184,27 @@ function App() {
 
   // Load progress data from localStorage on mount
   useEffect(() => {
-    const savedProgress = localStorage.getItem('pomodoro_history');
-    if (savedProgress) {
-      setProgressData(JSON.parse(savedProgress));
+    try {
+      const savedProgress = localStorage.getItem('pomodoro_history');
+      if (savedProgress) {
+        setProgressData(JSON.parse(savedProgress) || {});
+      }
+    } catch (error) {
+      console.error('Failed to load progress data:', error);
+      setProgressData({});
     }
   }, []);
 
   // Save progress to localStorage whenever it changes
   const saveProgress = (count) => {
-    const today = new Date().toISOString().split('T')[0];
-    const newProgressData = { ...progressData, [today]: (progressData[today] || 0) + count };
-    setProgressData(newProgressData);
-    localStorage.setItem('pomodoro_history', JSON.stringify(newProgressData));
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const newProgressData = { ...progressData, [today]: (progressData[today] || 0) + count };
+      setProgressData(newProgressData);
+      localStorage.setItem('pomodoro_history', JSON.stringify(newProgressData));
+    } catch (error) {
+      console.error('Failed to save progress data:', error);
+    }
   };
 
   useEffect(() => {
