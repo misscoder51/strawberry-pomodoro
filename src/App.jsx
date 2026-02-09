@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
+import ProgressTracker from './components/ProgressTracker';
 
 const HandmadeStar = ({ color, style }) => (
   <svg className="handmade-star" viewBox="0 0 100 100" style={style}>
@@ -174,8 +175,28 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(parseInt(workDuration) * 60);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Progress tracking state
+  const [showProgress, setShowProgress] = useState(false);
+  const [progressData, setProgressData] = useState({});
+
   const timerRef = useRef(null);
   const audioRef = useRef(new Audio('https://www.soundjay.com/buttons/beep-01a.mp3'));
+
+  // Load progress data from localStorage on mount
+  useEffect(() => {
+    const savedProgress = localStorage.getItem('pomodoro_history');
+    if (savedProgress) {
+      setProgressData(JSON.parse(savedProgress));
+    }
+  }, []);
+
+  // Save progress to localStorage whenever it changes
+  const saveProgress = (count) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newProgressData = { ...progressData, [today]: (progressData[today] || 0) + count };
+    setProgressData(newProgressData);
+    localStorage.setItem('pomodoro_history', JSON.stringify(newProgressData));
+  };
 
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
@@ -198,6 +219,7 @@ function App() {
     if (isWorkTime) {
       const completed = pomodorosCompleted + 1;
       setPomodorosCompleted(completed);
+      saveProgress(1); // Save to progress tracker
       const isLongBreak = completed % 4 === 0;
 
       if (window.confirm(isLongBreak ? "Break Time 🍹! Take a long break 🧘?" : "Break Time 🧁! Take a short break ☕?")) {
@@ -255,6 +277,10 @@ function App() {
         {isDarkMode ? <span className="moon-icon">🌙</span> : <span className="sun-icon">☀️</span>}
       </button>
 
+      <button className="progress-toggle" onClick={() => setShowProgress(true)}>
+        <span className="chart-icon">📊</span>
+      </button>
+
       <div className="glass-card">
         <StrawberryMascot isRunning={isRunning} />
 
@@ -304,6 +330,12 @@ function App() {
           <p>completed cycles: {pomodorosCompleted}</p>
         </div>
       </div>
+
+      <ProgressTracker
+        show={showProgress}
+        onClose={() => setShowProgress(false)}
+        progressData={progressData}
+      />
     </div >
   );
 }
